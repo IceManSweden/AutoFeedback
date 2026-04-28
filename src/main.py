@@ -9,10 +9,14 @@ from generator.feedback import FeedbackGenerator
 # Generate a feedback report.
 
 code = """
+gen = FeedbackGenerator()
+# model="gemma4:latest"
+print(gen.singlePrompt([code]))
+print(gen.pipeline([code]))
 
 """
 
-gen = FeedbackGenerator(model="gemma4:latest")
-
+gen = FeedbackGenerator()
+# model="gemma4:latest"
 print(gen.singlePrompt([code]))
 print(gen.pipeline([code]))

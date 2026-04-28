@@ -18,7 +18,7 @@ class FeedbackGenerator:
 
     def startup(self):
         print("Loading model")
-        self.llm.generate(model=self.model, prompt="", keep_alive=-1)
+        self.llm.generate(model=self.model, prompt="", keep_alive=5)
         print("Model Loaded")
 
     def listInstalledModels(self):
