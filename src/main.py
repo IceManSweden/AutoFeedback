@@ -1,4 +1,4 @@
-from generator import feedback
+from generator.feedback import FeedbackGenerator
 
 # Select Model
 
@@ -7,6 +7,12 @@ from generator import feedback
 # Select Files / Folder With files.
 
 # Generate a feedback report.
-gen = feedback.FeedbackGenerator()
-gen.showModel()
-# gen.chat("Who is this")
+
+code = """
+
+"""
+
+gen = FeedbackGenerator(model="gemma4:latest")
+
+print(gen.singlePrompt([code]))
+print(gen.pipeline([code]))
