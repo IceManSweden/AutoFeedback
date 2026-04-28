@@ -5,6 +5,7 @@
 ## Prerequisites
 
 - [Ollama](https://ollama.com/)
+  - [Documentation](https://github.com/ollama/ollama-python)
 - [Python](https://www.python.org/)
 
 ## Installing Python packages
