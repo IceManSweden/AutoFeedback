@@ -44,7 +44,10 @@ class FeedbackGenerator:
         return res.message.content
 
     def singlePrompt(self, input=[]):
-        return self.chat(query="Provide feedback on this code", input=input)
+        return self.chat(
+            query="Provide feedback on this code. Dont be to harsh. Dont provide fixes",
+            input=input,
+        )
 
     def pipeline(self, inputFiles=[]):
         responses = []
