@@ -15,7 +15,6 @@ scanDir = "src/"
 
 def recursiveFindFiles(directory, depth=0):
     files = []
-
     for file in listdir(directory):
         full_path = path.join(directory, file)
 

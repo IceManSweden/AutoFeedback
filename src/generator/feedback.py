@@ -40,7 +40,10 @@ class FeedbackGenerator:
             model=self.model,
             stream=False,
             think=False,
-            messages=[{"role": "user", "content": f"{query} {data}"}],
+            messages=[
+                {"role": "TA", "content": "You provide constructive feedback on code"},
+                {"role": "user", "content": f"{query} {data}"},
+            ],
         )
         summary = (
             "\n\n\n\n Metadata: "
@@ -60,7 +63,7 @@ class FeedbackGenerator:
     def singlePrompt(self, input=[]):
         print("Running single prompt")
         return self.chat(
-            query="Provide feedback on this code.. Dont provide fixes",
+            query="Provide formative feedback on this code. Dont provide fixes or solution of any kind. Dont ask any followup questions in the end",
             input=input,
             verbose=True,
         )
@@ -68,10 +71,10 @@ class FeedbackGenerator:
     def pipeline(self, inputFiles=[]):
         responses = []
         questions = [
-            "Provide feedback on the syntax in this code.",
-            "Provide feedback on the structure of this code.",
-            "Provide feedback on the Correctness of this code.",
-            "Provide feedback on the Efficiency of this code.",
+            "Provide direct feedback on only the Syntax in this code. In less then 200 words",
+            "Provide direct feedback on only the structure of this code.In less then 200 words",
+            "Provide direct feedback on only the Correctness of this code.In less then 200 words",
+            "Provide direct feedback on only the Efficiency of this code.In less then 200 words",
         ]
         print("\n\nRunning Pipeline:")
         for q in questions:
@@ -79,7 +82,7 @@ class FeedbackGenerator:
 
         responses.extend(inputFiles)
         summery = self.chat(
-            query="Summarize this feedback and provide formative feedback. Dont provide fixes or improvements",
+            query="Only Summarize this feedback and provide formative feedback. Dont provide fixes or improvements or refactored code. Dont ask any followup questions in the end",
             input=responses,
             verbose=True,
         )
