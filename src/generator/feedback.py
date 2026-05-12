@@ -17,7 +17,7 @@ class FeedbackGenerator:
         atexit.register(self.exit)
 
     def startup(self):
-        print("Loading model")
+        print(f"Loading model {self.model}")
         self.llm.generate(model=self.model, prompt="", keep_alive=5)
         print("Model Loaded")
 
@@ -39,11 +39,13 @@ class FeedbackGenerator:
         res = self.llm.chat(
             model=self.model,
             stream=False,
+            think=False,
             messages=[{"role": "user", "content": f"{query} {data}"}],
         )
         return res.message.content
 
     def singlePrompt(self, input=[]):
+        print("Running single prompt")
         return self.chat(
             query="Provide feedback on this code. Dont be to harsh. Dont provide fixes",
             input=input,
@@ -57,11 +59,14 @@ class FeedbackGenerator:
             "Provide feedback on the Correctness of this code. Dont be to harsh",
             "Provide feedback on the Efficiency of this code. Dont be to harsh",
         ]
+        print("\n\nRunning Pipeline:")
         for q in questions:
             responses.append(self.chat(query=q, input=inputFiles))
 
+        responses.extend(inputFiles)
         summery = self.chat(
-            query="Summarize this feedback. Dont provide fixes", input=responses
+            query="Summarize this feedback and provide formative feedback. Dont provide fixes or improvements",
+            input=responses,
         )
         return summery
 
