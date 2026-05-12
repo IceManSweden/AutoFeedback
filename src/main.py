@@ -33,6 +33,7 @@ def readFileContents(files):
     content = []
     for f in files:
         file = open(f)
+        content.append(f)
         content.append(file.read(-1))
     return content
 
@@ -42,22 +43,27 @@ def createReport(name, content):
     f.write(f"\n# {name}\n")
     f.writelines(content)
     f.close()
+    print(f"report created: feedback_{name}.md")
 
 
-filepaths = recursiveFindFiles(scanDir)
-print("Files Found to be processed", filepaths)
-content = readFileContents(filepaths)
-print(content)
+def main():
+    filepaths = recursiveFindFiles(scanDir)
+    print("Files Found to be processed", filepaths)
+    content = readFileContents(filepaths)
 
-gen = FeedbackGenerator()
-# model="gemma4:latest"
-timeStart = perf_counter()
-single = gen.singlePrompt(content)
-print(f"Single Prompt Time Taken: {round(perf_counter()- timeStart, 2)}s")
+    gen = FeedbackGenerator()
+    # model="gemma4:latest
+    timeStart = perf_counter()
+    single = gen.singlePrompt(content)
+    print(f"Single Prompt Time Taken: {round(perf_counter()- timeStart, 2)}s")
+    createReport("singleprompt", single)
 
-timeStart = perf_counter()
-pipe = gen.pipeline(content)
-print(f"Pipeline Time Taken: {round(perf_counter()- timeStart, 2)}s")
+    timeStart = perf_counter()
+    pipe = gen.pipeline(content)
+    print(f"Pipeline Time Taken: {round(perf_counter()- timeStart, 2)}s")
 
-createReport("singleprompt", single)
-createReport("pipeline", pipe)
+    createReport("pipeline", pipe)
+
+
+if __name__ == "__main__":
+    main()
