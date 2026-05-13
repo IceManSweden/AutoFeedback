@@ -11,10 +11,9 @@ class FeedbackGenerator:
 
     def single_prompt(self, input=[], dir="."):
         print("Running single prompt")
-        return self.llm.chat(
+        return self.llm.generate(
             query="Provide formative feedback on this code. Dont provide fixes or solution of any kind. Dont ask any followup questions in the end",
             input=input,
-            verbose=True,
         )
 
     def pipeline(self, inputFiles=[], dir="."):

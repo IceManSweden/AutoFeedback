@@ -13,13 +13,17 @@ class LLMManager:
 
     def startup(self):
         print(f"Loading model {self.model}")
-        self.llm.generate(model=self.model, prompt="", keep_alive=5)
+        try:
+            self.llm.generate(model=self.model, prompt="", keep_alive=5)
+        except:
+            self.pullChosenModel()
         print("Model Loaded")
 
     def list_installed_models(self):
         print(self.llm.list().models)
 
     def pullChosenModel(self):
+        print("Downloading Model")
         print(self.llm.pull(self.model))
 
     def show_model(self):
@@ -37,10 +41,27 @@ class LLMManager:
             f"Prompt eval duration: {res.prompt_eval_duration}"
         )
 
+    def generate(self, query, input=[]):
+        data = ""
+        for d in input:
+            data += d
+
+        res = self.llm.chat(
+            model=self.model,
+            stream=False,
+            think=False,
+            messages=[{"role": "user", "content": f"{query} {data}"}],
+            tools=[eslint_tool.run_eslint],
+        )
+
+        metadata = self.create_metadata(res=res)
+        return res.message.content, metadata
+
     def chat(self, query, input=[], verbose=False, tool=False, messages=[]):
         data = ""
         for d in input:
             data += d
+
         messages.extend(
             [
                 {"role": "TA", "content": "You provide constructive feedback on code"},
@@ -48,6 +69,7 @@ class LLMManager:
             ]
         )
         print(f"{query}")
+
         res = self.llm.chat(
             model=self.model,
             stream=False,

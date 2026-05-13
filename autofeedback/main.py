@@ -89,7 +89,7 @@ def main():
     content = read_files_content(filepaths)
     create_feedback_report("Content", content)
 
-    generator = FeedbackGenerator()
+    generator = FeedbackGenerator(model="qwen3:1.7b")
     # model="gemma4:latest
     time_start = perf_counter()
 
