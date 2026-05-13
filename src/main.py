@@ -1,6 +1,8 @@
 from generator.feedback import FeedbackGenerator
 from os import path, listdir
 from time import perf_counter
+from fnmatch import fnmatch
+import pathspec
 
 # Select Model
 
@@ -13,17 +15,43 @@ from time import perf_counter
 scanDir = "/home/ice/Dev/AutoFeedback/b2-crud"
 
 
-def recursiveFindFiles(directory, depth=0):
+def loadGitignore(scanDir):
+    gitignorePath = path.join(scanDir, ".gitignore")
+
+    if not path.isfile(gitignorePath):
+        return None
+
+    with open(gitignorePath, "r", encoding="utf-8") as file:
+        return pathspec.GitIgnoreSpec.from_lines(file)
+
+
+def isIgnored(filepath, scanDir, gitignoreSpec):
+    if gitignoreSpec is None:
+        return False
+
+    relativePath = path.relpath(filepath, scanDir).replace("\\", "/")
+    return gitignoreSpec.match_file(relativePath)
+
+
+def recursiveFindFiles(directory, scanDir=None, gitignoreSpec=None):
+    if scanDir is None:
+        scanDir = directory
+        gitignoreSpec = loadGitignore(scanDir)
+
     files = []
+
     for file in listdir(directory):
-        full_path = path.join(directory, file)
+        fullPath = path.join(directory, file)
 
-        if path.isdir(full_path):
-            files.extend(recursiveFindFiles(full_path, depth + 1))
+        if isIgnored(fullPath, scanDir, gitignoreSpec):
+            continue
 
-        elif path.isfile(full_path):
-            if file.endswith(".py"):
-                files.append(full_path)
+        if path.isdir(fullPath):
+            files.extend(recursiveFindFiles(fullPath, scanDir, gitignoreSpec))
+
+        elif path.isfile(fullPath):
+            if file.endswith(".js"):
+                files.append(fullPath)
 
     return files
 
