@@ -10,7 +10,7 @@ from time import perf_counter
 
 # Generate a feedback report.
 
-scanDir = "src/"
+scanDir = "/home/ice/Dev/AutoFeedback/b2-crud"
 
 
 def recursiveFindFiles(directory, depth=0):
@@ -53,12 +53,15 @@ def main():
     gen = FeedbackGenerator()
     # model="gemma4:latest
     timeStart = perf_counter()
+
+    # Runs to single prompt.
     single = gen.singlePrompt(content)
     print(f"Single Prompt Time Taken: {round(perf_counter()- timeStart, 2)}s")
     createReport("singleprompt", single)
 
+    # Runs the pipeline.
     timeStart = perf_counter()
-    pipe = gen.pipeline(content)
+    pipe = gen.pipeline(content, dir=scanDir)
     print(f"Pipeline Time Taken: {round(perf_counter()- timeStart, 2)}s")
 
     createReport("pipeline", pipe)
