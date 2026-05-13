@@ -2,7 +2,8 @@ from os import path, listdir
 from time import perf_counter
 from fnmatch import fnmatch
 import pathspec
-from autofeedback.generator.feedback import FeedbackGenerator
+from .generator.feedback import FeedbackGenerator
+import sys
 
 # Select Model
 
@@ -12,7 +13,13 @@ from autofeedback.generator.feedback import FeedbackGenerator
 
 # Generate a feedback report.
 
-project_path = "/home/ice/Dev/AutoFeedback/b2-crud"
+project_path = ""
+
+if sys.argv[1]:
+    fn = sys.argv[1]
+    if path.exists(fn):
+        print(f"Performing feedback on the folder {path.basename(fn)}")
+    project_path = fn
 
 
 def load_gitignore(scanDir):
@@ -56,12 +63,15 @@ def recursive_find_files(directory, scanDir=None, gitignoreSpec=None):
     return files
 
 
-def read_files_content(files):
+def read_files_content(files) -> list[str]:
     content = []
     for f in files:
         file = open(f)
-        content.append(f)
-        content.append(file.read(-1))
+        document = ""
+        document += f"# {f}\n```{str(f).split('.')[-1]}\n"
+        document += file.read(-1)
+        document += "```\n"
+        content.append(document)
     return content
 
 
@@ -77,19 +87,20 @@ def main():
     filepaths = recursive_find_files(project_path)
     print("Files Found to be processed", filepaths)
     content = read_files_content(filepaths)
+    create_feedback_report("Content", content)
 
-    gen = FeedbackGenerator()
+    generator = FeedbackGenerator()
     # model="gemma4:latest
     time_start = perf_counter()
 
     # Runs to single prompt.
-    single = gen.single_prompt(content)
+    single = generator.single_prompt(content)
     print(f"Single Prompt Time Taken: {round(perf_counter()- time_start, 2)}s")
     create_feedback_report("singleprompt", single)
 
     # Runs the pipeline.
     time_start = perf_counter()
-    pipe = gen.pipeline(content, dir=project_path)
+    pipe = generator.pipeline(content, dir=project_path)
     print(f"Pipeline Time Taken: {round(perf_counter()- time_start, 2)}s")
 
     create_feedback_report("pipeline", pipe)
