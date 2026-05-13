@@ -1,8 +1,8 @@
-from generator.feedback import FeedbackGenerator
 from os import path, listdir
 from time import perf_counter
 from fnmatch import fnmatch
 import pathspec
+from autofeedback.generator.feedback import FeedbackGenerator
 
 # Select Model
 
@@ -12,10 +12,10 @@ import pathspec
 
 # Generate a feedback report.
 
-scanDir = "/home/ice/Dev/AutoFeedback/b2-crud"
+project_path = "/home/ice/Dev/AutoFeedback/b2-crud"
 
 
-def loadGitignore(scanDir):
+def load_gitignore(scanDir):
     gitignorePath = path.join(scanDir, ".gitignore")
 
     if not path.isfile(gitignorePath):
@@ -25,7 +25,7 @@ def loadGitignore(scanDir):
         return pathspec.GitIgnoreSpec.from_lines(file)
 
 
-def isIgnored(filepath, scanDir, gitignoreSpec):
+def is_ignored(filepath, scanDir, gitignoreSpec):
     if gitignoreSpec is None:
         return False
 
@@ -33,21 +33,21 @@ def isIgnored(filepath, scanDir, gitignoreSpec):
     return gitignoreSpec.match_file(relativePath)
 
 
-def recursiveFindFiles(directory, scanDir=None, gitignoreSpec=None):
+def recursive_find_files(directory, scanDir=None, gitignoreSpec=None):
     if scanDir is None:
         scanDir = directory
-        gitignoreSpec = loadGitignore(scanDir)
+        gitignoreSpec = load_gitignore(scanDir)
 
     files = []
 
     for file in listdir(directory):
         fullPath = path.join(directory, file)
 
-        if isIgnored(fullPath, scanDir, gitignoreSpec):
+        if is_ignored(fullPath, scanDir, gitignoreSpec):
             continue
 
         if path.isdir(fullPath):
-            files.extend(recursiveFindFiles(fullPath, scanDir, gitignoreSpec))
+            files.extend(recursive_find_files(fullPath, scanDir, gitignoreSpec))
 
         elif path.isfile(fullPath):
             if file.endswith(".js"):
@@ -56,7 +56,7 @@ def recursiveFindFiles(directory, scanDir=None, gitignoreSpec=None):
     return files
 
 
-def readFileContents(files):
+def read_files_content(files):
     content = []
     for f in files:
         file = open(f)
@@ -65,7 +65,7 @@ def readFileContents(files):
     return content
 
 
-def createReport(name, content):
+def create_feedback_report(name, content):
     f = open(f"feedback_{name}.md", "w+")
     f.write(f"\n# {name}\n")
     f.writelines(content)
@@ -74,25 +74,25 @@ def createReport(name, content):
 
 
 def main():
-    filepaths = recursiveFindFiles(scanDir)
+    filepaths = recursive_find_files(project_path)
     print("Files Found to be processed", filepaths)
-    content = readFileContents(filepaths)
+    content = read_files_content(filepaths)
 
     gen = FeedbackGenerator()
     # model="gemma4:latest
-    timeStart = perf_counter()
+    time_start = perf_counter()
 
     # Runs to single prompt.
-    single = gen.singlePrompt(content)
-    print(f"Single Prompt Time Taken: {round(perf_counter()- timeStart, 2)}s")
-    createReport("singleprompt", single)
+    single = gen.single_prompt(content)
+    print(f"Single Prompt Time Taken: {round(perf_counter()- time_start, 2)}s")
+    create_feedback_report("singleprompt", single)
 
     # Runs the pipeline.
-    timeStart = perf_counter()
-    pipe = gen.pipeline(content, dir=scanDir)
-    print(f"Pipeline Time Taken: {round(perf_counter()- timeStart, 2)}s")
+    time_start = perf_counter()
+    pipe = gen.pipeline(content, dir=project_path)
+    print(f"Pipeline Time Taken: {round(perf_counter()- time_start, 2)}s")
 
-    createReport("pipeline", pipe)
+    create_feedback_report("pipeline", pipe)
 
 
 if __name__ == "__main__":

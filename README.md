@@ -23,12 +23,18 @@ Run the following in the a Terminal
 python3 -m pip install -r requirements.txt
 ```
 
+This project is dependant on the following python packages
+
+- Ollama
+- Pathspec
+
 ## Run AutoFeedback
 
 To run AutoFeedback run the following command in the terminal in the root project directory.
 
 ```bash
-python3 src/main.py
+python3 -m autofeedback.main
 ```
 
 When running the program it will attempt to load a LLM model (default qwen3:0.8b) on the target ollama instance. Upon the program completion it will unload the model on the target to recover claimed system resources.
+When you provide the path for the file or directory. The program looks for `.gitignore` and the ignores following the files and directories.
