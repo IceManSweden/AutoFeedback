@@ -1,22 +1,31 @@
 from autofeedback.generator.feedbacktools.eslint_tool import run_eslint
 from autofeedback.generator.llm_handler import LLMManager
+from ollama import ChatResponse
 
 
 class FeedbackPipeline:
     def __init__(self, llm: LLMManager):
         self.llm = llm
 
-    def run(self, inputFiles=[], dir="."):
-        responses = []
+    def file_analysis(self, file_content) -> str:
+        messages = [
+            {
+                "role": "system",
+                "content": "You are a helpful assistant. that provides constructive feedback on code.",
+            }
+        ]
 
-        tool_result = self.llm.chat(
-            query=f"Get the result from running eslint and evaluate the code",
-            tool=True,
-            input=inputFiles,
+        messages.append(
+            {
+                "role": "user",
+                "content": f"Get the result from running eslint and evaluate the code. {file_content}",
+            }
         )
-        messages = []
 
-        print(tool_result.message.content)
+        tool_result = self.llm.chat(tool=True, messages=messages)
+
+        messages.append(tool_result.message)
+
         if tool_result.message.tool_calls:
             for call in tool_result.message.tool_calls:
                 if call.function.name == "run_eslint":
@@ -30,23 +39,61 @@ class FeedbackPipeline:
                         }
                     )
 
-        print(f"Result of running eslint {messages}")
+        messages.append(
+            {
+                "role": "user",
+                "content": "Provide formative feedback based on the linting and code and metrics syntax quality, structure correctness and effiency",
+            }
+        )
+        summery = self.llm.chat(
+            messages=messages,
+        )
 
-        questions = [
-            "Provide direct feedback on only the Syntax in this code. In less then 200 words",
-            "Provide direct feedback on only the structure of this code.In less then 200 words",
-            "Provide direct feedback on only the Correctness of this code.In less then 200 words",
-            "Provide direct feedback on only the Efficiency of this code.In less then 200 words",
-        ]
+        return summery
+
+    def run(self, inputFiles=[], dir="."):
 
         print("\n\nRunning Pipeline:")
-        for q in questions:
-            responses.append(self.llm.chat(query=q, messages=messages))
 
-        responses.extend(inputFiles)
-        summery = self.llm.chat(
-            query="Only Summarize this feedback and provide formative feedback. Dont provide fixes or improvements or refactored code. Dont ask any followup questions in the end",
-            input=responses,
-            verbose=True,
+        # Sets up the LLM.
+        messages = [
+            {
+                "role": "system",
+                "content": "You are a helpful assistant. that provides constructive feedback on code.",
+            }
+        ]
+
+        feedbacks = []
+        file_feedback = ""
+        # Adds the input files.
+        for f in inputFiles:
+            data = self.file_analysis(f)
+            print(data)
+            feedbacks.append(data)
+            file_feedback += data
+
+        # Tool Message.
+
+        questions = [
+            "Provide direct feedback on only the Syntax on the code above. ",
+            "Provide direct feedback on only the structure on the code above",
+            "Provide direct feedback on only the Correctness on the code above",
+            "Provide direct feedback on only the Efficiency on the code above",
+        ]
+
+        # Summery Question
+        messages.append(
+            {
+                "role": "user",
+                "content": f"Summarize this feedback and provide formative feedback report. {file_feedback}",
+            }
         )
+        summery = self.llm.chat(
+            verbose=True,
+            messages=messages,
+        )
+
+        for message in messages:
+            print(message)
+
         return summery

@@ -57,18 +57,13 @@ class LLMManager:
         metadata = self.create_metadata(res=res)
         return res.message.content, metadata
 
-    def chat(self, query, input=[], verbose=False, tool=False, messages=[]):
-        data = ""
-        for d in input:
-            data += d
-
-        messages.extend(
-            [
-                {"role": "TA", "content": "You provide constructive feedback on code"},
-                {"role": "user", "content": f"{query} {data}"},
-            ]
-        )
-        print(f"{query}")
+    def chat(
+        self,
+        verbose: bool = False,
+        tool: bool = False,
+        messages=[],
+    ):
+        # Add new query.
 
         res = self.llm.chat(
             model=self.model,

@@ -10,6 +10,7 @@ def run_eslint(dir=".") -> dict:
     Returns:
         The result of running eslint
     """
+    print(f"Tool call ran: {["npx", "eslint", dir],}")
     res = subprocess.run(
         ["npx", "eslint", dir],
         capture_output=True,
