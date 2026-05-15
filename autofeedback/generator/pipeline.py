@@ -7,7 +7,7 @@ class FeedbackPipeline:
     def __init__(self, llm: LLMManager):
         self.llm = llm
 
-    def file_analysis(self, file_content) -> str:
+    def file_analysis(self, file_content, assignment) -> str:
         messages = [
             {
                 "role": "system",
@@ -18,7 +18,7 @@ class FeedbackPipeline:
         messages.append(
             {
                 "role": "user",
-                "content": f"Get the result from running eslint and evaluate the code. {file_content}",
+                "content": f"Get the result from running eslint and evaluate the code. {file_content}, with this assignment this file may only be a part of the assignment. {assignment}",
             }
         )
 
@@ -51,7 +51,7 @@ class FeedbackPipeline:
 
         return summery
 
-    def run(self, inputFiles=[], dir="."):
+    def run(self, inputFiles=[], dir=".", assignment=None):
 
         print("\n\nRunning Pipeline:")
 
@@ -67,7 +67,7 @@ class FeedbackPipeline:
         file_feedback = ""
         # Adds the input files.
         for f in inputFiles:
-            data = self.file_analysis(f)
+            data = self.file_analysis(f, assignment)
             print(data)
             feedbacks.append(data)
             file_feedback += data

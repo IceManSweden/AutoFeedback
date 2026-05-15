@@ -13,13 +13,23 @@ import sys
 
 # Generate a feedback report.
 
-project_path = ""
+project_path = None
+assignment_path = None
 
 if sys.argv[1]:
     fn = sys.argv[1]
     if path.exists(fn):
         print(f"Performing feedback on the folder {path.basename(fn)}")
     project_path = fn
+else:
+    print("No project files were provided!")
+    exit(1)
+
+if sys.argv[2]:
+    fn = sys.argv[2]
+    if path.exists(fn):
+        print(f"Assignment provided: {path.basename(fn)}")
+    assignment_path = fn
 
 
 def load_gitignore(scanDir):
@@ -87,6 +97,10 @@ def main():
     filepaths = recursive_find_files(project_path)
     print("Files Found to be processed", filepaths)
     content = read_files_content(filepaths)
+    assignment_content = None
+    if assignment_path:
+        assignment_content = read_files_content([assignment_path])[0]
+
     create_feedback_report("Content", content)
 
     generator = FeedbackGenerator(model="qwen3:1.7b")
