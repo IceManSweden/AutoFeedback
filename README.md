@@ -33,7 +33,7 @@ This project is dependant on the following python packages
 To run AutoFeedback run the following command in the terminal in the root project directory.
 
 ```bash
-python3 -m autofeedback.main
+python3 -m autofeedback.main path/to/documents
 ```
 
 When running the program it will attempt to load a LLM model (default qwen3:0.8b) on the target ollama instance. Upon the program completion it will unload the model on the target to recover claimed system resources.
