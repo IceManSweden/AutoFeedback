@@ -86,7 +86,7 @@ def read_files_content(files) -> list[str]:
 
 
 def create_feedback_report(name, content, dest):
-    f = open(f"{dest}feedback_{name}.md", "w+")
+    f = open(f"{dest}/feedback_{name}.md", "w+")
     f.write(f"\n# {name}\n")
     f.writelines(content)
     f.close()
