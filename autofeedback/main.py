@@ -85,8 +85,8 @@ def read_files_content(files) -> list[str]:
     return content
 
 
-def create_feedback_report(name, content):
-    f = open(f"feedback_{name}.md", "w+")
+def create_feedback_report(name, content, dest):
+    f = open(f"{dest}feedback_{name}.md", "w+")
     f.write(f"\n# {name}\n")
     f.writelines(content)
     f.close()
@@ -101,23 +101,23 @@ def main():
     if assignment_path:
         assignment_content = read_files_content([assignment_path])[0]
 
-    create_feedback_report("Content", content)
+    create_feedback_report("Content", content, project_path)
 
-    generator = FeedbackGenerator(model="qwen3:1.7b")
+    generator = FeedbackGenerator(model="qwen3:8b")
     # model="gemma4:latest
     time_start = perf_counter()
 
     # Runs to single prompt.
-    single = generator.single_prompt(content)
+    single = generator.single_prompt(content, assignment=assignment_content)
     print(f"Single Prompt Time Taken: {round(perf_counter()- time_start, 2)}s")
-    create_feedback_report("singleprompt", single)
+    create_feedback_report("singleprompt", single, project_path)
 
     # Runs the pipeline.
     time_start = perf_counter()
-    pipe = generator.pipeline(content, dir=project_path)
+    pipe = generator.pipeline(content, dir=project_path, assignment=assignment_content)
     print(f"Pipeline Time Taken: {round(perf_counter()- time_start, 2)}s")
 
-    create_feedback_report("pipeline", pipe)
+    create_feedback_report("pipeline", pipe, project_path)
 
 
 if __name__ == "__main__":

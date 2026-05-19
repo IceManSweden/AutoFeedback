@@ -18,7 +18,7 @@ class FeedbackPipeline:
         messages.append(
             {
                 "role": "user",
-                "content": f"Get the result from running eslint and evaluate the code. {file_content}, with this assignment this file may only be a part of the assignment. {assignment}",
+                "content": f"Get the result from running eslint on the provided file. and evaluate the code. {file_content}, with this assignment this file may only be a part of the assignment. {assignment}",
             }
         )
 
@@ -68,7 +68,6 @@ class FeedbackPipeline:
         # Adds the input files.
         for f in inputFiles:
             data = self.file_analysis(f, assignment)
-            print(data)
             feedbacks.append(data)
             file_feedback += data
 
@@ -92,8 +91,5 @@ class FeedbackPipeline:
             verbose=True,
             messages=messages,
         )
-
-        for message in messages:
-            print(message)
 
         return summery
