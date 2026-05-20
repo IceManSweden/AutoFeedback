@@ -8,6 +8,13 @@ class FeedbackPipeline:
         self.llm = llm
 
     def file_analysis(self, file_content, assignment) -> str:
+        """Analyses a specific file and generates feedback using tools
+        Args:
+            file_content: the content of a specific file.
+            assignment: the content of the assignment.
+        Returns:
+            The feedback generated of a specific file.
+        """
         messages = [
             {
                 "role": "system",
@@ -52,6 +59,15 @@ class FeedbackPipeline:
         return summery
 
     def run(self, inputFiles=[], dir=".", assignment=None):
+        """Runs the pipeline method
+        Args:
+            inputFiles: The contents of relevant files.
+            dir: directory of the project.
+            assignment: The assignment content.
+
+        Returns:
+            The feedback generated.
+        """
 
         print("\n\nRunning Pipeline:")
 

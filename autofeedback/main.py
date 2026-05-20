@@ -5,17 +5,10 @@ import pathspec
 from .generator.feedback import FeedbackGenerator
 import sys
 
-# Select Model
-
-# Select Assignment
-
-# Select Files / Folder With files.
-
-# Generate a feedback report.
-
 project_path = None
 assignment_path = None
 
+# Gets the arguments.
 if sys.argv[1]:
     fn = sys.argv[1]
     if path.exists(fn):
@@ -32,39 +25,67 @@ if sys.argv[2]:
     assignment_path = fn
 
 
-def load_gitignore(scanDir):
-    gitignorePath = path.join(scanDir, ".gitignore")
+def load_gitignore(scan_dir):
+    """Gets the gitignore in the project folder.
 
-    if not path.isfile(gitignorePath):
+    Args:
+        scan_dir: The project directory path
+
+    Returns:
+        The gitignore.
+    """
+    gitignore_path = path.join(scan_dir, ".gitignore")
+
+    if not path.isfile(gitignore_path):
         return None
 
-    with open(gitignorePath, "r", encoding="utf-8") as file:
+    with open(gitignore_path, "r", encoding="utf-8") as file:
         return pathspec.GitIgnoreSpec.from_lines(file)
 
 
-def is_ignored(filepath, scanDir, gitignoreSpec):
+def is_ignored(filepath, scan_dir, gitignoreSpec):
+    """Checks if the a file or directory is ignored by the .gitignore
+
+    Args:
+        filepath: files path.
+        scan_dir: Directory used.
+        gitignoreSpec: The gitignore object.
+
+    Returns:
+        Whether the file is ignored or not.
+    """
     if gitignoreSpec is None:
         return False
 
-    relativePath = path.relpath(filepath, scanDir).replace("\\", "/")
-    return gitignoreSpec.match_file(relativePath)
+    relative_path = path.relpath(filepath, scan_dir).replace("\\", "/")
+    return gitignoreSpec.match_file(relative_path)
 
 
-def recursive_find_files(directory, scanDir=None, gitignoreSpec=None):
-    if scanDir is None:
-        scanDir = directory
-        gitignoreSpec = load_gitignore(scanDir)
+def recursive_find_files(directory, scan_dir=None, gitignoreSpec=None):
+    """Finds the project files recursively using the gitignore
+
+    Args:
+        directory: Directory.
+        scan_dir: directory to be scanned.
+        gitignoreSpec: The gitignore object.
+
+    Returns:
+        The File paths found.
+    """
+    if scan_dir is None:
+        scan_dir = directory
+        gitignoreSpec = load_gitignore(scan_dir)
 
     files = []
 
     for file in listdir(directory):
         fullPath = path.join(directory, file)
 
-        if is_ignored(fullPath, scanDir, gitignoreSpec):
+        if is_ignored(fullPath, scan_dir, gitignoreSpec):
             continue
 
         if path.isdir(fullPath):
-            files.extend(recursive_find_files(fullPath, scanDir, gitignoreSpec))
+            files.extend(recursive_find_files(fullPath, scan_dir, gitignoreSpec))
 
         elif path.isfile(fullPath):
             if file.endswith(".js"):
@@ -74,18 +95,36 @@ def recursive_find_files(directory, scanDir=None, gitignoreSpec=None):
 
 
 def read_files_content(files) -> list[str]:
+    """Reads the files contents.
+
+    Args:
+        List of the files paths
+
+    Returns:
+        A list of the files content including the filename.
+    """
     content = []
     for f in files:
         file = open(f)
+        # Writes the header of the file content.
         document = ""
         document += f"# {f}\n```{str(f).split('.')[-1]}\n"
         document += file.read(-1)
         document += "```\n"
+
         content.append(document)
     return content
 
 
 def create_feedback_report(name, content, dest):
+    """Creates a feedback report file.
+
+    Args:
+        name: The name of the report.
+        content: The content for the report.
+        dest: The target destination.
+
+    """
     f = open(f"{dest}/feedback_{name}.md", "w+")
     f.write(f"\n# {name}\n")
     f.writelines(content)

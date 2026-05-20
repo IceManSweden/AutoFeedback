@@ -10,6 +10,16 @@ class FeedbackGenerator:
         self.llm.startup()
 
     def single_prompt(self, input=[], dir=".", assignment=None):
+        """Runs the single prompt method
+
+        Args:
+            input: The input files.
+            dir: directory.
+            assignment: The assignment related to the code.
+
+        Returns:
+            The feedback that has been generated.
+        """
         print("Running single prompt")
         if assignment:
             query = f"Provide formative feedback on this code to this assignment {assignment} .Dont provide fixes or solution of any kind. Dont ask any followup questions in the end"
@@ -20,6 +30,15 @@ class FeedbackGenerator:
             input=input,
         )
 
-    def pipeline(self, inputFiles=[], dir=".", assignment=None):
+    def pipeline(self, input_files=[], dir=".", assignment=None):
+        """Runs the pipeline feedback generation method.
+        Args:
+            input_files: The input files.
+            dir: directory.
+            assignment: The assignment related to the code.
+
+        Returns:
+            The feedback that has been generated.
+        """
         feedbackPipeline = FeedbackPipeline(self.llm)
-        return feedbackPipeline.run(inputFiles, dir, assignment)
+        return feedbackPipeline.run(input_files, dir, assignment)
